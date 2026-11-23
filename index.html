@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GrantGlide: ScholarQuest — Intelligent Scholarship Discovery & Matching</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Chart.js (financial aid doughnut) and Socket.IO (real-time notifications) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+</head>
+<body>
+
+  <!-- =====================================================================
+       PUBLIC PAGES  (#/  ·  #/login  ·  #/register)
+       ===================================================================== -->
+  <div id="public-root">
+
+    <!-- ---------- Landing ---------- -->
+    <section id="view-landing" class="view">
+      <header class="public-navbar">
+        <div class="brand-logo dark">
+          <span>🎓 GrantGlide</span>
+          <span class="brand-badge">ScholarQuest</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="#/login" class="btn btn-secondary">Log In</a>
+          <a href="#/register" class="btn btn-primary">Get Started</a>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="container">
+          <span class="badge badge-primary mb-2">Empowering Future Leaders</span>
+          <h1 class="hero-title">
+            Discover &amp; Win Grants with <span class="hero-highlight">Intelligent Matching</span>
+          </h1>
+          <p class="hero-subtitle">
+            Eliminate the guesswork in scholarship applications. ScholarQuest uses weighted eligibility algorithms, financial aid gap analysis, and scheme conflict detection to pair you with the best grants.
+          </p>
+          <div class="flex justify-center gap-4">
+            <a href="#/register" class="btn btn-primary btn-lg">Start Free Match</a>
+            <a href="#/scholarships" class="btn btn-secondary btn-lg">Browse Scholarships</a>
+          </div>
+        </div>
+      </section>
+
+      <div class="container">
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-number">₹10+ Cr</div><div class="stat-label">Verified Funding Pool</div></div>
+          <div class="stat-card"><div class="stat-number">98%</div><div class="stat-label">Eligibility Matching Accuracy</div></div>
+          <div class="stat-card"><div class="stat-number">100%</div><div class="stat-label">Conflict-Free Portfolios</div></div>
+          <div class="stat-card"><div class="stat-number">0 Cost</div><div class="stat-label">Free For All Students</div></div>
+        </div>
+      </div>
+
+      <section class="feature-section">
+        <div class="container">
+          <h2>Engineered with 12 Intelligent Modules</h2>
+          <div class="grid grid-cols-3 gap-6">
+            <div class="card feature-card">
+              <div class="feature-icon">🎯</div>
+              <h3>Weighted Matching Engine</h3>
+              <p>Calculates multi-dimensional compatibility spanning merit scores, financial need, and community criteria.</p>
+            </div>
+            <div class="card feature-card">
+              <div class="feature-icon">⚖️</div>
+              <h3>Conflict Detection System</h3>
+              <p>Warns you of duplicate funding policies and government mutual-exclusion rules before submission.</p>
+            </div>
+            <div class="card feature-card">
+              <div class="feature-icon">💰</div>
+              <h3>Financial Aid Calculator</h3>
+              <p>Breaks down tuition, living expenses, and family contribution to estimate your net financial gap.</p>
+            </div>
+            <div class="card feature-card">
+              <div class="feature-icon">📁</div>
+              <h3>Document Vault &amp; Expiry Alerts</h3>
+              <p>Store income certificates and marksheets securely with automatic notifications when renewals are due.</p>
+            </div>
+            <div class="card feature-card">
+              <div class="feature-icon">⏱️</div>
+              <h3>Automated Deadline Schedulers</h3>
+              <p>Background cron jobs track countdowns so you never miss another crucial grant submission deadline.</p>
+            </div>
+            <div class="card feature-card">
+              <div class="feature-icon">🛡️</div>
+              <h3>Enterprise-Grade Security</h3>
+              <p>Built with JWT authorization, Helmet protection, rate limiting, and structured audit logs.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="site-footer">
+        <div class="container">
+          <div class="footer-brand">GrantGlide: ScholarQuest</div>
+          <p class="footer-sub">Complete Full Stack Web Development Architecture</p>
+          <div class="footer-tech">Powered by Node.js, Express, SQLite, Prisma ORM, Socket.IO, and Chart.js.</div>
+        </div>
+      </footer>
+    </section>
+
+    <!-- ---------- Login ---------- -->
+    <section id="view-login" class="view">
+      <div class="auth-page login">
+        <div class="auth-card">
+          <div class="auth-head">
+            <a href="#/" class="brand-logo dark"><span>🎓 GrantGlide</span></a>
+            <h1>Welcome Back</h1>
+            <p>Log in to access your scholar dashboard</p>
+          </div>
+
+          <div id="login-backend-status" class="backend-status"></div>
+
+          <form id="login-form">
+            <div class="form-group">
+              <label class="form-label" for="login-email">Email Address</label>
+              <input type="email" id="login-email" class="form-control" placeholder="you@university.edu" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="login-password">Password</label>
+              <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <button type="submit" id="login-submit" class="btn btn-primary btn-block" style="margin-top: 1rem;">Sign In</button>
+          </form>
+
+          <div class="demo-box">
+            <div class="demo-label">ONE-CLICK DEMO ACCOUNTS</div>
+            <div class="flex gap-2">
+              <button type="button" id="demo-student-btn" class="btn btn-secondary btn-sm" style="flex: 1;">👨‍🎓 Demo Student</button>
+              <button type="button" id="demo-admin-btn" class="btn btn-secondary btn-sm" style="flex: 1;">🛡️ Demo Admin</button>
+            </div>
+          </div>
+
+          <p class="auth-foot">Don't have an account? <a href="#/register">Sign up free</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- Register ---------- -->
+    <section id="view-register" class="view">
+      <div class="auth-page register">
+        <div class="auth-card wide">
+          <div class="auth-head">
+            <a href="#/" class="brand-logo dark"><span>🎓 GrantGlide</span></a>
+            <h1>Create Your Account</h1>
+            <p>Join thousands of students securing grants</p>
+          </div>
+
+          <div id="register-backend-status" class="backend-status"></div>
+
+          <form id="register-form">
+            <div class="grid grid-cols-2 gap-3">
+              <div class="form-group">
+                <label class="form-label" for="reg-firstName">First Name</label>
+                <input type="text" id="reg-firstName" class="form-control" placeholder="Priya" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="reg-lastName">Last Name</label>
+                <input type="text" id="reg-lastName" class="form-control" placeholder="Patel" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-email">College or Personal Email</label>
+              <input type="email" id="reg-email" class="form-control" placeholder="priya.patel@college.edu" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-phone">Phone Number</label>
+              <input type="tel" id="reg-phone" class="form-control" placeholder="+91 9876543210">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-password">Password (min 8 characters)</label>
+              <input type="password" id="reg-password" class="form-control" placeholder="••••••••" minlength="8" required>
+            </div>
+            <button type="submit" id="register-submit" class="btn btn-primary btn-block" style="margin-top: 1rem;">Create Free Account</button>
+          </form>
+
+          <p class="auth-foot">Already have an account? <a href="#/login">Sign in here</a></p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- =====================================================================
+       APP SHELL  (sidebar + top bar + authenticated pages)
+       ===================================================================== -->
+  <div id="app-shell" class="app-layout" hidden>
+
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-logo"><span>🎓 GrantGlide</span><span class="brand-badge">Quest</span></div>
+      </div>
+      <nav class="sidebar-menu">
+        <a href="#/dashboard" class="sidebar-link" data-nav="dashboard"><span>📊</span> Dashboard</a>
+        <a href="#/scholarships" class="sidebar-link" data-nav="scholarships"><span>🔍</span> Find Scholarships</a>
+        <a href="#/profile" class="sidebar-link" data-nav="profile"><span>👤</span> Student Profile</a>
+        <a href="#/documents" class="sidebar-link" data-nav="documents"><span>📁</span> Document Vault</a>
+        <a href="#/applications" class="sidebar-link" data-nav="applications"><span>📝</span> My Applications</a>
+        <a href="#/notifications" class="sidebar-link" data-nav="notifications"><span>🔔</span> Notifications</a>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="btn btn-secondary btn-block btn-sm">🚪 Log Out</button>
+      </div>
+    </aside>
+
+    <div class="main-wrapper">
+      <header class="top-navbar">
+        <div class="flex items-center gap-3">
+          <button id="mobile-toggle" class="btn btn-secondary btn-sm" aria-label="Toggle menu">☰</button>
+          <h2 id="topbar-title">Dashboard</h2>
+        </div>
+        <div class="flex items-center gap-4">
+          <a href="#/notifications" class="bell-link" aria-label="Notifications">
+            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+            <span id="nav-unread-badge" class="badge badge-danger bell-badge">0</span>
+          </a>
+          <div class="flex items-center gap-2 user-chip">
+            <div id="nav-avatar" class="avatar">U</div>
+            <div>
+              <div id="nav-username" class="user-name">User</div>
+              <div id="nav-role" class="user-role">STUDENT</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="page-content">
+
+        <!-- ================= DASHBOARD ================= -->
+        <section id="view-dashboard" class="view">
+          <div class="page-header">
+            <h1 id="welcome-heading" class="page-title">Welcome back!</h1>
+            <p class="page-subtitle">Here is your real-time scholarship intelligence overview</p>
+          </div>
+
+          <div class="grid grid-cols-4 gap-4 mb-4">
+            <div class="card">
+              <div class="metric-label">Matched Scholarships</div>
+              <div id="stat-matches" class="metric-value" style="color: var(--primary);">--</div>
+              <div class="metric-note" style="color: var(--success); font-weight: 500;">✓ Ready for submission</div>
+            </div>
+            <div class="card">
+              <div class="metric-label">Potential Funding</div>
+              <div id="stat-funding" class="metric-value">₹--</div>
+              <div class="metric-note">Across top matches</div>
+            </div>
+            <div class="card">
+              <div class="metric-label">Document Readiness</div>
+              <div id="stat-readiness" class="metric-value" style="color: #8b5cf6;">--%</div>
+              <div class="metric-note">Vault verification</div>
+            </div>
+            <div class="card">
+              <div class="metric-label">Submitted Applications</div>
+              <div id="stat-applications" class="metric-value" style="color: var(--secondary);">--</div>
+              <div class="metric-note">Track progress in real time</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-6">
+            <div class="span-2">
+              <div class="card mb-3">
+                <div class="row-between mb-2">
+                  <h3 class="card-title">🎯 Top High-Match Scholarships</h3>
+                  <a href="#/scholarships" class="link-primary">View All &rarr;</a>
+                </div>
+                <div id="recommendations-container" class="flex flex-col gap-3">
+                  <div class="empty-state">Evaluating your profile against scholarship criteria...</div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="row-between mb-2">
+                  <h3 class="card-title">💰 Financial Aid &amp; Cost Gap Breakdown</h3>
+                  <span id="gap-severity-badge" class="badge badge-warning">EVALUATING</span>
+                </div>
+                <p class="page-subtitle mb-2">Comparison between your estimated annual educational expenses and current expected family contribution.</p>
+                <div class="grid grid-cols-2 gap-4 items-center">
+                  <div style="max-height: 220px; display: flex; justify-content: center;">
+                    <canvas id="financialChart" style="max-height: 200px; max-width: 200px;"></canvas>
+                  </div>
+                  <div class="flex flex-col gap-2" style="font-size: 0.875rem;">
+                    <div class="kv-row"><span class="text-secondary">Total Annual Cost:</span><strong id="fin-total-cost">₹0</strong></div>
+                    <div class="kv-row"><span class="text-secondary">Expected Family Contribution:</span><strong id="fin-family-contrib">₹0</strong></div>
+                    <div class="kv-row"><span class="text-secondary">Secured Grant Aid:</span><strong id="fin-secured-aid" style="color: var(--success);">₹0</strong></div>
+                    <div class="flex justify-between" style="padding-top: 4px;">
+                      <span style="font-weight: 600; color: var(--danger);">Net Funding Gap:</span>
+                      <strong id="fin-net-gap" style="font-weight: 700; color: var(--danger); font-size: 1rem;">₹0</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-6">
+              <div class="card">
+                <h3 class="card-title mb-2">⏱️ Upcoming Deadlines</h3>
+                <div id="deadlines-container" class="flex flex-col gap-3">
+                  <div class="empty-state" style="padding: 1rem; font-size: 0.875rem;">Loading upcoming dates...</div>
+                </div>
+              </div>
+              <div class="card">
+                <h3 class="card-title mb-1">📋 Document Vault Status</h3>
+                <p class="text-secondary mb-2" style="font-size: 0.75rem;">Uploaded certificates make your applications one-click ready.</p>
+                <div id="readiness-list" class="flex flex-col gap-2" style="font-size: 0.875rem;"></div>
+                <a href="#/documents" class="btn btn-secondary btn-block btn-sm" style="margin-top: 1rem;">Manage Documents &rarr;</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= SCHOLARSHIPS ================= -->
+        <section id="view-scholarships" class="view">
+          <div class="page-header">
+            <h1 class="page-title">Scholarship Discovery Engine</h1>
+            <p class="page-subtitle">Explore verified government, corporate, and private foundations with intelligent eligibility filtering.</p>
+          </div>
+
+          <div class="card mb-3" style="padding: 1.25rem;">
+            <div class="grid grid-cols-4 gap-3 items-center">
+              <div class="span-2">
+                <input type="text" id="search-input" class="form-control" placeholder="Search by scholarship title, provider or keywords...">
+              </div>
+              <div>
+                <select id="category-filter" class="form-control">
+                  <option value="">All Categories</option>
+                  <option value="Merit-based">Merit-based</option>
+                  <option value="Need-based">Need-based</option>
+                  <option value="Caste-based">Caste-based</option>
+                  <option value="Girl-Child">Girl-Child</option>
+                  <option value="Special-Ability">Special-Ability</option>
+                </select>
+              </div>
+              <div>
+                <select id="sort-select" class="form-control">
+                  <option value="deadline:asc">Deadline: Soonest first</option>
+                  <option value="awardAmount:desc">Award: Highest amount</option>
+                  <option value="title:asc">Title: A-Z</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row-between mb-2">
+            <div id="results-count" class="text-secondary" style="font-size: 0.875rem; font-weight: 500;">Loading scholarships...</div>
+            <div class="flex gap-2">
+              <select id="gender-filter" class="form-control form-control-inline">
+                <option value="">Any Gender</option>
+                <option value="FEMALE">Female Only</option>
+                <option value="MALE">Male</option>
+              </select>
+              <select id="caste-filter" class="form-control form-control-inline">
+                <option value="">All Castes</option>
+                <option value="OBC">OBC</option>
+                <option value="SC">SC</option>
+                <option value="ST">ST</option>
+                <option value="EWS">EWS</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="scholarships-grid" class="grid grid-cols-1 gap-4 mb-4"></div>
+          <div id="pagination-container" class="flex justify-center gap-2 items-center" style="margin-top: 1.5rem;"></div>
+        </section>
+
+        <!-- ================= SCHOLARSHIP DETAILS ================= -->
+        <section id="view-scholarship-details" class="view">
+          <a href="#/scholarships" class="back-link">&larr; Back to all scholarships</a>
+
+          <div class="grid grid-cols-3 gap-6">
+            <div class="span-2">
+              <div class="card mb-3">
+                <div class="row-between mb-1">
+                  <span id="badge-category" class="badge badge-primary">Category</span>
+                  <span id="badge-deadline" class="badge badge-warning">Loading Deadline</span>
+                </div>
+                <h1 id="scholarship-title" class="page-title" style="margin-bottom: 0.5rem;">Loading Scholarship Details...</h1>
+                <div class="text-secondary mb-2" style="font-size: 1rem;">Provider: <strong id="scholarship-provider">--</strong></div>
+                <p id="scholarship-description" class="text-secondary mb-3" style="font-size: 0.95rem; line-height: 1.6;">--</p>
+                <div style="background: #f8fafc; border-radius: var(--radius-md); padding: 1rem; font-size: 0.875rem;">
+                  <div class="mb-1"><strong>Renewal Conditions:</strong> <span id="scholarship-renewal">None specified</span></div>
+                  <div>
+                    <strong>Official Website:</strong>
+                    <a id="scholarship-url" href="#" target="_blank" rel="noopener" style="color: var(--primary); text-decoration: underline;">Visit Official Portal &rarr;</a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card mb-3">
+                <div class="row-between mb-2">
+                  <h3 style="font-size: 1.25rem; font-weight: 600;">🔍 Personalized Eligibility Verification</h3>
+                  <span id="eligibility-status-badge" class="badge badge-warning">Evaluating...</span>
+                </div>
+                <p class="text-secondary mb-3" style="font-size: 0.875rem;">Our intelligent rule evaluator cross-checks your current academic, financial, and demographic profile.</p>
+
+                <div class="mb-3">
+                  <h4 style="font-size: 0.875rem; font-weight: 600; color: var(--success); margin-bottom: 0.5rem;">✓ FULFILLED CRITERIA</h4>
+                  <div id="passed-criteria-list" class="flex flex-col gap-2" style="font-size: 0.875rem;"></div>
+                </div>
+
+                <div id="failed-criteria-section" hidden>
+                  <h4 style="font-size: 0.875rem; font-weight: 600; color: var(--danger); margin-bottom: 0.5rem;">✗ UNFULFILLED REQUIREMENTS &amp; REASONS</h4>
+                  <div id="failed-criteria-list" class="flex flex-col gap-2" style="font-size: 0.875rem;"></div>
+                </div>
+              </div>
+
+              <div id="conflict-card" class="card mb-3" hidden>
+                <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--danger); margin-bottom: 0.75rem;">⚠️ Scheme Conflict Detected</h3>
+                <p class="text-secondary mb-2" style="font-size: 0.875rem;">Applying to this scholarship may conflict with your active grants under government duplicate funding or provider rules.</p>
+                <div id="conflict-details-list" class="flex flex-col gap-2" style="font-size: 0.875rem;"></div>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-6">
+              <div class="card" style="border: 2px solid var(--primary);">
+                <div class="text-muted" style="font-size: 0.875rem; font-weight: 500;">AWARD VALUE</div>
+                <div id="award-amount-display" style="font-size: 2.25rem; font-weight: 800; color: var(--primary); margin: 0.25rem 0;">₹--</div>
+                <div id="award-type-display" class="text-secondary mb-3" style="font-size: 0.875rem;">Per academic year</div>
+
+                <div class="match-box">
+                  <div class="row-between mb-1">
+                    <span style="font-size: 0.875rem; font-weight: 600;">Overall Match Alignment:</span>
+                    <strong id="match-percent-display" style="font-size: 1.125rem; color: var(--primary);">--%</strong>
+                  </div>
+                  <div class="match-track"><div id="match-bar" class="match-bar"></div></div>
+                  <div id="match-explanation-display" class="text-secondary" style="font-size: 0.75rem; margin-top: 0.5rem; line-height: 1.4;">--</div>
+                </div>
+
+                <button id="apply-btn" class="btn btn-primary btn-block" style="padding: 0.875rem; font-size: 1rem; margin-bottom: 0.75rem;">🚀 Submit Application Now</button>
+                <button id="bookmark-btn" class="btn btn-secondary btn-block btn-sm">⭐ Save to Bookmarks</button>
+              </div>
+
+              <div class="card">
+                <h3 class="card-title mb-1">📑 Mandatory Documents</h3>
+                <p class="text-secondary mb-2" style="font-size: 0.75rem;">Verified certificates required during the verification stage:</p>
+                <div id="required-docs-list" class="flex flex-col gap-2" style="font-size: 0.875rem;"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= PROFILE ================= -->
+        <section id="view-profile" class="view">
+          <div class="page-header">
+            <h1 class="page-title">Student Profile &amp; Eligibility Information</h1>
+            <p class="page-subtitle">Keep your profile up to date to receive maximum high-percentage scholarship matches.</p>
+          </div>
+
+          <div class="tab-nav">
+            <button class="tab-btn active" data-tab="personal">1. Personal Details</button>
+            <button class="tab-btn" data-tab="academic">2. Academic Background</button>
+            <button class="tab-btn" data-tab="family">3. Family &amp; Financial Profile</button>
+          </div>
+
+          <!-- Personal -->
+          <div id="tab-personal" class="tab-content active">
+            <div class="card" style="max-width: 800px;">
+              <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem;">Personal &amp; Domicile Details</h3>
+              <form id="personal-form">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="form-group"><label class="form-label" for="pf-firstName">First Name</label><input type="text" id="pf-firstName" class="form-control" required></div>
+                  <div class="form-group"><label class="form-label" for="pf-lastName">Last Name</label><input type="text" id="pf-lastName" class="form-control" required></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="form-group"><label class="form-label" for="pf-phone">Phone Number</label><input type="tel" id="pf-phone" class="form-control"></div>
+                  <div class="form-group">
+                    <label class="form-label" for="pf-gender">Gender</label>
+                    <select id="pf-gender" class="form-control" required>
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="form-group">
+                    <label class="form-label" for="pf-casteCategory">Caste / Social Category</label>
+                    <select id="pf-casteCategory" class="form-control" required>
+                      <option value="">Select Category</option>
+                      <option value="General">General / Open</option>
+                      <option value="OBC">OBC (Other Backward Class)</option>
+                      <option value="SC">SC (Scheduled Caste)</option>
+                      <option value="ST">ST (Scheduled Tribe)</option>
+                      <option value="EWS">EWS (Economically Weaker Section)</option>
+                      <option value="Minority">Religious Minority</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="pf-stateOfDomicile">State of Domicile</label>
+                    <input type="text" id="pf-stateOfDomicile" class="form-control" placeholder="e.g. Maharashtra, Karnataka, Delhi" required>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="checkbox-row"><input type="checkbox" id="pf-isSpeciallyAbled"><span style="font-weight: 500;">Person with Benchmark Disability (PwD) / Specially Abled</span></label>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Personal Profile</button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Academic -->
+          <div id="tab-academic" class="tab-content">
+            <div class="card" style="max-width: 800px;">
+              <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem;">Academic Performance &amp; Education</h3>
+              <form id="academic-form">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="form-group">
+                    <label class="form-label" for="pf-educationLevel">Current Education Level</label>
+                    <select id="pf-educationLevel" class="form-control" required>
+                      <option value="High School">High School (11th / 12th)</option>
+                      <option value="Undergraduate">Undergraduate (B.Tech, B.Sc, MBBS, etc.)</option>
+                      <option value="Postgraduate">Postgraduate (M.Tech, M.Sc, MBA)</option>
+                      <option value="Doctorate">Doctorate / Ph.D.</option>
+                      <option value="Diploma">Diploma / Polytechnic</option>
+                    </select>
+                  </div>
+                  <div class="form-group"><label class="form-label" for="pf-institutionName">Institution / College Name</label><input type="text" id="pf-institutionName" class="form-control" placeholder="e.g. IIT Bombay / Pune University" required></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="form-group"><label class="form-label" for="pf-courseName">Course / Degree Name</label><input type="text" id="pf-courseName" class="form-control" placeholder="e.g. B.Tech, MBBS, B.Sc" required></div>
+                  <div class="form-group">
+                    <label class="form-label" for="pf-currentYear">Current Year of Study</label>
+                    <select id="pf-currentYear" class="form-control" required>
+                      <option value="1">1st Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option>
+                      <option value="4">4th Year</option><option value="5">5th Year</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="form-group"><label class="form-label" for="pf-gpa">Current CGPA / Percentage Score</label><input type="number" step="0.01" id="pf-gpa" class="form-control" placeholder="e.g. 8.75 or 87.5" required></div>
+                  <div class="form-group">
+                    <label class="form-label" for="pf-gradingSystem">Grading System</label>
+                    <select id="pf-gradingSystem" class="form-control" required>
+                      <option value="CGPA_10">CGPA (10-point scale)</option>
+                      <option value="PERCENTAGE">Percentage (%)</option>
+                      <option value="CGPA_4">GPA (4-point scale)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="form-group"><label class="form-label" for="pf-tenthPercentage">10th Standard Percentage (%)</label><input type="number" step="0.1" id="pf-tenthPercentage" class="form-control" placeholder="e.g. 91.5"></div>
+                  <div class="form-group"><label class="form-label" for="pf-twelfthPercentage">12th Standard Percentage (%)</label><input type="number" step="0.1" id="pf-twelfthPercentage" class="form-control" placeholder="e.g. 88.0"></div>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Academic Profile</button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Family -->
+          <div id="tab-family" class="tab-content">
+            <div class="card" style="max-width: 800px;">
+              <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem;">Family Income &amp; Financial Background</h3>
+              <form id="family-form">
+                <div class="form-group">
+                  <label class="form-label" for="pf-annualIncome">Total Family Annual Income (in INR ₹)</label>
+                  <input type="number" id="pf-annualIncome" class="form-control" placeholder="e.g. 180000" required>
+                  <small class="form-hint">Accurate income figures are mandatory for government and need-based scholarship validation.</small>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="form-group"><label class="form-label" for="pf-fatherOccupation">Father's Occupation</label><input type="text" id="pf-fatherOccupation" class="form-control" placeholder="e.g. Farmer / Salaried / Business"></div>
+                  <div class="form-group"><label class="form-label" for="pf-motherOccupation">Mother's Occupation</label><input type="text" id="pf-motherOccupation" class="form-control" placeholder="e.g. Homemaker / Teacher"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="form-group">
+                    <label class="form-label" for="pf-rationCardType">Ration Card Type</label>
+                    <select id="pf-rationCardType" class="form-control">
+                      <option value="None">None / General</option>
+                      <option value="BPL">BPL (Below Poverty Line)</option>
+                      <option value="Antyodaya">Antyodaya Anna Yojana (AAY)</option>
+                      <option value="APL">APL (Above Poverty Line)</option>
+                    </select>
+                  </div>
+                  <div class="form-group"><label class="form-label" for="pf-numberOfSiblings">Number of Siblings</label><input type="number" id="pf-numberOfSiblings" class="form-control" value="0" min="0"></div>
+                </div>
+                <div class="form-group flex flex-col gap-2" style="margin-top: 0.5rem;">
+                  <label class="checkbox-row"><input type="checkbox" id="pf-isFirstGenerationLearner"><span>First Generation College Learner (First in family to attend college)</span></label>
+                  <label class="checkbox-row"><input type="checkbox" id="pf-singleParent"><span>Single Parent Household</span></label>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Save Family Profile</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= DOCUMENTS ================= -->
+        <section id="view-documents" class="view">
+          <div class="row-between page-header">
+            <div>
+              <h1 class="page-title">Document Vault &amp; Renewal Tracker</h1>
+              <p class="page-subtitle">Upload certificates once to instantly verify and submit scholarship applications.</p>
+            </div>
+            <button id="open-upload-modal" class="btn btn-primary">+ Upload New Certificate</button>
+          </div>
+
+          <div class="card mb-4" style="background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);">
+            <div class="row-between">
+              <div>
+                <div class="text-secondary" style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem;">Overall Document Readiness Score</div>
+                <div id="readiness-percent" style="font-size: 2.25rem; font-weight: 800; color: var(--primary);">--%</div>
+                <p class="text-secondary" style="font-size: 0.875rem;">Higher readiness ensures zero delays when verifying eligibility for government grants.</p>
+              </div>
+              <div style="width: 280px; max-width: 45%;">
+                <div id="readiness-pills" class="flex flex-col gap-1" style="font-size: 0.75rem;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title mb-2">Vault Certificates</h3>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Document Type</th><th>File Name</th><th>File Size</th><th>Expiry Date</th><th>Status</th>
+                    <th style="text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="documents-tbody">
+                  <tr><td colspan="6" class="empty-state">Loading uploaded certificates...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Upload modal -->
+          <div id="upload-modal" class="modal-overlay">
+            <div class="card modal-card">
+              <div class="row-between mb-2">
+                <h3 style="font-size: 1.25rem; font-weight: 600;">Upload Certificate</h3>
+                <button id="close-modal-btn" class="modal-close" aria-label="Close">&times;</button>
+              </div>
+              <form id="upload-form">
+                <div class="form-group">
+                  <label class="form-label" for="doc-type">Certificate Category</label>
+                  <select id="doc-type" class="form-control" required>
+                    <option value="INCOME_CERTIFICATE">Income Certificate (Tehsildar/Govt issued)</option>
+                    <option value="CASTE_CERTIFICATE">Caste / Community Certificate</option>
+                    <option value="MARKSHEET">Academic Marksheet (Latest Semester/Year)</option>
+                    <option value="DOMICILE">State Domicile / Residence Certificate</option>
+                    <option value="AADHAAR">Aadhaar Card / ID Proof</option>
+                    <option value="RATION_CARD">Ration Card (BPL/Antyodaya)</option>
+                    <option value="DISABILITY_CERTIFICATE">Disability (PwD) Certificate</option>
+                    <option value="BONAFIDE_CERTIFICATE">Bonafide Student Certificate</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="doc-file">Select File (PDF, PNG, JPG - Max 10MB)</label>
+                  <input type="file" id="doc-file" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.webp" required>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="form-group"><label class="form-label" for="doc-issue">Issue Date (Optional)</label><input type="date" id="doc-issue" class="form-control"></div>
+                  <div class="form-group"><label class="form-label" for="doc-expiry">Expiry Date (If applicable)</label><input type="date" id="doc-expiry" class="form-control"></div>
+                </div>
+                <button type="submit" id="upload-submit-btn" class="btn btn-primary btn-block" style="margin-top: 1rem;">Upload &amp; Verify File</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= APPLICATIONS ================= -->
+        <section id="view-applications" class="view">
+          <div class="page-header">
+            <h1 class="page-title">My Applications &amp; Tracking</h1>
+            <p class="page-subtitle">Monitor the real-time review, verification, and disbursement progress of all your grant submissions.</p>
+          </div>
+
+          <div class="card" style="margin-bottom: 2.5rem;">
+            <h3 class="card-title mb-2">Active Applications</h3>
+            <div id="applications-container" class="flex flex-col gap-4">
+              <div class="empty-state">Loading your submitted applications...</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title mb-2">⭐ Saved &amp; Bookmarked Scholarships</h3>
+            <p class="text-secondary mb-2" style="font-size: 0.875rem;">Scholarships you bookmarked for later submission.</p>
+            <div id="saved-container" class="grid grid-cols-2 gap-4">
+              <div class="text-muted" style="font-size: 0.875rem;">Loading saved scholarships...</div>
+            </div>
+          </div>
+
+          <!-- History modal -->
+          <div id="history-modal" class="modal-overlay">
+            <div class="card modal-card modal-wide">
+              <div class="row-between mb-2">
+                <h3 style="font-size: 1.25rem; font-weight: 600;">Status Audit Timeline</h3>
+                <button id="close-history-modal" class="modal-close" aria-label="Close">&times;</button>
+              </div>
+              <div id="timeline-container"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= NOTIFICATIONS ================= -->
+        <section id="view-notifications" class="view">
+          <div class="row-between page-header">
+            <div>
+              <h1 class="page-title">Notification &amp; Alert Center</h1>
+              <p class="page-subtitle">Stay informed on deadline alerts, document expiries, and application updates.</p>
+            </div>
+            <button id="mark-all-read-btn" class="btn btn-secondary btn-sm">✓ Mark All As Read</button>
+          </div>
+          <div class="card">
+            <div id="notifications-list" class="flex flex-col gap-3">
+              <div class="empty-state">Loading notifications...</div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Toast messages are appended here by script.js -->
+  <div id="toast-container"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
